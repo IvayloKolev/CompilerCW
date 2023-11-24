@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Compiler": {
+      "commandName": "Project",
+      "commandLineArgs": "example.sqr\r\n",
+      "workingDirectory": "../"
+    }
+  }
+}
