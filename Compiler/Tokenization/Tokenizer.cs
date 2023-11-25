@@ -106,26 +106,50 @@ namespace Compiler.Tokenization
             TokenSpelling.Clear();
             if (char.IsLetter(Reader.Current))
             {
-                // Reading an identifier
-                TakeIt();
-                while (char.IsLetterOrDigit(Reader.Current))
+                if (char.IsUpper(Reader.Current))
+                {
+                    // Reading an identifier starting with an upper case letter
                     TakeIt();
-                if (TokenTypes.IsKeyword(TokenSpelling))
-                    return TokenTypes.GetTokenForKeyword(TokenSpelling);
-                else
-                    return TokenType.Identifier;
+                    while (char.IsLetterOrDigit(Reader.Current))
+                        TakeIt();
+                    if (TokenTypes.IsKeyword(TokenSpelling))
+                        return TokenTypes.GetTokenForKeyword(TokenSpelling);
+                    else
+                        return TokenType.Identifier;
+                } else if (char.IsLower(Reader.Current)) {
+
+                    // Reading an identifier for keyword
+                    TakeIt();
+                    while (char.IsLetterOrDigit(Reader.Current))
+                        TakeIt();
+                    if (TokenTypes.IsKeyword(TokenSpelling))
+                        return TokenTypes.GetTokenForKeyword(TokenSpelling);
+                    else
+                        Debugger.Write($"Error scanning identifier {Reader.Current}");
+                        return TokenType.Error;
+                } else
+                {
+                    Debugger.Write($"Error scanning identifier {Reader.Current}");
+                    return TokenType.Error;
+                }
             }
             else if (char.IsDigit(Reader.Current))
             {
                 // Reading an integer
                 TakeIt();
+
                 while (char.IsDigit(Reader.Current) || Reader.Current == '_')
                 {
-                    // Allowing underscores in integer literals
-                    TakeIt();
+                    // Skip underscores, if any
+                    if (Reader.Current != '_')
+                        TakeIt();
+                    else
+                        Reader.MoveNext();
                 }
+
                 return TokenType.IntLiteral;
             }
+
             else if (IsOperator(Reader.Current))
             {
                 // Read an operator
@@ -135,14 +159,17 @@ namespace Compiler.Tokenization
             else if (Reader.Current == ':')
             {
                 // Read an :
+                // Is it a : or a :=
                 TakeIt();
-                return TokenType.Colon;
-            }
-            else if (Reader.Current == '=')
-            {
-                // Read a =
-                TakeIt();
-                return TokenType.Becomes;
+                if (Reader.Current == '=')
+                {
+                    TakeIt();
+                    return TokenType.Becomes;
+                }
+                else
+                {
+                    return TokenType.Colon;
+                }
             }
             else if (Reader.Current == ';')
             {

@@ -184,7 +184,7 @@ namespace Compiler.IO
                     return NodeToString(lastChild, ifCommand, ifCommand.IfCondition, ifCommand.IfCommand, ifCommand.ElseCommand);
 
                 case IfUnlessCommandNode ifUnlessCommand:
-                    return NodeToString(lastChild, ifUnlessCommand, ifUnlessCommand.IfCondition, ifUnlessCommand.UnlessCondition, ifUnlessCommand.Command, ifUnlessCommand.ElseCommand);
+                    return NodeToString(lastChild, ifUnlessCommand, ifUnlessCommand.IfCondition, ifUnlessCommand.UnlessCondition, ifUnlessCommand.IfCommand, ifUnlessCommand.ElseCommand);
 
                 case LetCommandNode letCommand:
                     return NodeToString(lastChild, letCommand, letCommand.Declarations, letCommand.Command);

@@ -1,8 +1,8 @@
 ﻿using Compiler.IO;
 using Compiler.Nodes;
 using Compiler.Tokenization;
-using System.Collections.Generic;
 using static Compiler.Tokenization.TokenType;
+using System.Collections.Generic;
 
 namespace Compiler.SyntacticAnalysis
 {
@@ -107,12 +107,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a Command
+        /// Parses a IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the Command</returns>
+        /// <returns>An abstract syntax tree representing the IfCommand</returns>
         private ICommandNode ParseCommand()
         {
-            Debugger.Write("Parsing Command");
+            Debugger.Write("Parsing IfCommand");
             List<ICommandNode> commands = new List<ICommandNode>();
             commands.Add(ParseSingleCommand());
             while (CurrentToken.Type == Semicolon)
@@ -153,19 +153,19 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses an assignment or call Command
+        /// Parses an assignment or call IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the assignment or call Command</returns>
+        /// <returns>An abstract syntax tree representing the assignment or call IfCommand</returns>
         private ICommandNode ParseAssignmentOrCallCommand()
         {
-            Debugger.Write("Parsing Assignment Command or Call Command");
+            Debugger.Write("Parsing Assignment IfCommand or Call IfCommand");
             Position startPosition = CurrentToken.Position;
 
             IdentifierNode identifier = ParseIdentifier();
             
             if (CurrentToken.Type == Becomes)
             {
-                Debugger.Write("Parsing Assignment Command");
+                Debugger.Write("Parsing Assignment IfCommand");
 
                 Accept(Becomes);
 
@@ -173,7 +173,7 @@ namespace Compiler.SyntacticAnalysis
                 return new AssignCommandNode(identifier, expression);
             } else if (CurrentToken.Type == OpeningParenthesis)
             {
-                Debugger.Write("Parsing Call Command");
+                Debugger.Write("Parsing Call IfCommand");
 
                 Accept(OpeningParenthesis);
                 IParameterNode parameter = ParseParameter();
@@ -188,23 +188,23 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a skip Command
+        /// Parses a skip IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the skip Command</returns>
+        /// <returns>An abstract syntax tree representing the skip IfCommand</returns>
         private ICommandNode ParseSkipCommand()
         {
-            Debugger.Write("Parsing Skip Command");
+            Debugger.Write("Parsing Skip IfCommand");
             Position startPosition = CurrentToken.Position;
             return new BlankCommandNode(startPosition);
         }
 
         /// <summary>
-        /// Parses a while Command
+        /// Parses a while IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the while Command</returns>
+        /// <returns>An abstract syntax tree representing the while IfCommand</returns>
         private ICommandNode ParseWhileCommand()
         {
-            Debugger.Write("Parsing While Command");
+            Debugger.Write("Parsing While IfCommand");
             Position startPosition = CurrentToken.Position;
 
             Accept(While);
@@ -248,12 +248,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a let in Command
+        /// Parses a let in IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the let in Command</returns>
+        /// <returns>An abstract syntax tree representing the let in IfCommand</returns>
         private ICommandNode ParseLetCommand()
         {
-            Debugger.Write("Parsing Let Command");
+            Debugger.Write("Parsing Let IfCommand");
             Position startPosition = CurrentToken.Position;
             Accept(Let);
             IDeclarationNode declaration = ParseDeclaration();
@@ -263,12 +263,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a with Command
+        /// Parses a with IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the with Command</returns>
+        /// <returns>An abstract syntax tree representing the with IfCommand</returns>
         private ICommandNode ParseWithCommand()
         {
-            Debugger.Write("Parsing With Command");
+            Debugger.Write("Parsing With IfCommand");
 
             Position startPosition = CurrentToken.Position;
             Accept(With);
@@ -283,12 +283,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a begin Command
+        /// Parses a begin IfCommand
         /// </summary>
-        /// <returns>An abstract syntax tree representing the begin Command</returns>
+        /// <returns>An abstract syntax tree representing the begin IfCommand</returns>
         private ICommandNode ParseBeginCommand()
         {
-            Debugger.Write("Parsing Begin Command");
+            Debugger.Write("Parsing Begin IfCommand");
             Accept(OpeningBrace);
             ICommandNode command = ParseCommand();
             Accept(ClosingBrace);
@@ -309,18 +309,12 @@ namespace Compiler.SyntacticAnalysis
             while (CurrentToken.Type == Semicolon)
             {
                 Accept(Semicolon);
-                Token nextToken = PeekNext();
-                Debugger.Write($"Parsed declaration of {CurrentToken} \n Next token is {nextToken}");
-
-                if (nextToken.Type == Identifier) {
-                    declarations.Add(ParseSingleDeclaration());
-                }
-                else { break; }
+                declarations.Add(ParseSingleDeclaration());
             }
-            if (declarations.Count == 1)
-                return declarations[0];
-            else
-                return new SequentialDeclarationNode(declarations);
+
+            return declarations.Count == 1
+                ? declarations[0]
+                : new SequentialDeclarationNode(declarations);
         }
 
         /// <summary>

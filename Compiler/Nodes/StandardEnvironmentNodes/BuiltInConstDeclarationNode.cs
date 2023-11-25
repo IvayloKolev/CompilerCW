@@ -37,7 +37,7 @@ namespace Compiler.Nodes
         {
             Name = name;
             EntityType = type;
-            RuntimeEntity = new RuntimeKnownConstant(value);
+            RuntimeEntity = null;
         }
 
         /// <inheritDoc />

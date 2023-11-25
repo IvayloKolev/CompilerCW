@@ -26,7 +26,7 @@
             PositionInLine = positionInLine;
         }
 
-        /// <inheritDoc />
+        /// <inheritDoc />W
         public override string ToString()
         {
             if (this == BuiltIn)

@@ -18,7 +18,7 @@ namespace Compiler.Nodes
         /// <summary>
         /// The if branch command
         /// </summary>
-        public ICommandNode Command { get; }
+        public ICommandNode IfCommand { get; }
 
         /// <summary>
         /// The else branch command
@@ -45,7 +45,7 @@ namespace Compiler.Nodes
         {
             IfCondition = ifCondition;
             UnlessCondition = unlessCondition;
-            Command = command;
+            IfCommand = command;
             ElseCommand = elseCommand;
             Position = position;
         }
