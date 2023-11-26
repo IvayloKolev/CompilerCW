@@ -2,29 +2,23 @@ let
 	XX ~ 1_0;
 	YY: Integer;
 	ZZ: Integer;
-	Condition: Boolean;
+	Condition: Boolean
 in
 {
 	YY := XX * 2;
 	Condition := True;
 
 	if (Condition) unless (YY < 30) 
-		Putint(in YY);
+		Putint(in YY)
 	else
-		Puteol();
+		Puteol()
 
 
 	ZZ := YY * 10;
 
 	with
-		AA ~ 20;
+		AA ~ 20
 	do
-		ZZ := ZZ - AA;
+		ZZ := ZZ - AA
 	done
-};
-
-with
-AA ~ 20
-do
-Putint(in AA)
-done
+}

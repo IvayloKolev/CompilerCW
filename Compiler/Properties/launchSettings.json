@@ -2,7 +2,7 @@
   "profiles": {
     "Compiler": {
       "commandName": "Project",
-      "commandLineArgs": "example.sqr\r\n",
+      "commandLineArgs": "example.sqr out.tam out.txt\r\n",
       "workingDirectory": "../"
     }
   }

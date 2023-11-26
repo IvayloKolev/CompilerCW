@@ -9,16 +9,18 @@ in
 	Condition := True;
 
 	if (Condition) unless (YY < 30) 
-		Putint(in YY)
+		Putint(in YY);
+		Puteol()
 	else
 		Puteol()
-
+	;
 
 	ZZ := YY * 10;
 
 	with
 		AA ~ 20
 	do
-		ZZ := ZZ - AA
+		ZZ := ZZ - AA;
+		Putint(in ZZ)
 	done
 }

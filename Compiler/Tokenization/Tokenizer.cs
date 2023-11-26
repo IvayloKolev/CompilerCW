@@ -221,7 +221,7 @@ namespace Compiler.Tokenization
                 }
                 else
                 {
-                    Debugger.Write("Lexical error: Character literal not properly closed");
+                    Reporter.ReportError($"Lexical error: Character literal {Reader.Current} not properly closed");
                     return TokenType.Error;
                 }
             }
@@ -235,7 +235,7 @@ namespace Compiler.Tokenization
             {
                 // Encountered a character we weren't expecting
                 TakeIt();
-                Debugger.Write($"Lexical error: Unexpected character '{TokenSpelling}'");
+                Reporter.ReportError($"Lexical error: Unexpected character '{TokenSpelling}'");
                 return TokenType.Error;
             }
         }

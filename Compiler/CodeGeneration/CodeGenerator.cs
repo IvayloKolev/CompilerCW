@@ -56,13 +56,13 @@ namespace Compiler.CodeGeneration
             if (node is null)
             {
                 // Shouldn't have null nodes - there is a problem with your parsing
-                Debugger.Write("Tried to generate code for a null tree node");
+                Reporter.ReportError("Tried to generate code for a null tree node");
                 return null;
             }
             else if (node is ErrorNode)
             {
                 // Shouldn't have error nodes - there is a problem with your parsing
-                Debugger.Write("Tried to generate code for an error tree node");
+                Reporter.ReportError("Tried to generate code for an error tree node");
                 return null;
             }
             else
@@ -72,15 +72,13 @@ namespace Compiler.CodeGeneration
                 if (function == null)
                 {
                     // There is not a correctly named function below
-                    Debugger.Write($"Couldn't find the function {functionName} when generating code");
+                    Reporter.ReportError($"Couldn't find the function {functionName} when generating code");
                     return null;
                 }
                 else
                     return (TargetCode)function.Invoke(this, new[] { node });
             }
         }
-
-
 
         /// <summary>
         /// Generates code for a program node
@@ -93,8 +91,6 @@ namespace Compiler.CodeGeneration
             code.AddInstruction(OpCode.HALT, 0, 0, 0);
         }
 
-
-
         /// <summary>
         /// Generates code for an assign command node
         /// </summary>
@@ -106,7 +102,7 @@ namespace Compiler.CodeGeneration
             if (assignCommand.Identifier.Declaration is IVariableDeclarationNode varDeclaration)
                 code.AddInstruction(varDeclaration.RuntimeEntity.GenerateInstructionToStore());
             else
-                Debugger.Write("The identifier is not a variable and you should have picked this problem up during type checking");
+                Reporter.ReportError("The identifier is not a variable and you should have picked this problem up during type checking");
         }
 
         /// <summary>
@@ -125,10 +121,11 @@ namespace Compiler.CodeGeneration
         private void GenerateCodeForCallCommand(CallCommandNode callCommand)
         {
             Debugger.Write("Generating code for Call Command");
+
             GenerateCodeFor(callCommand.Parameter);
             GenerateCodeFor(callCommand.Identifier);
         }
-
+        
         /// <summary>
         /// Generates code for an if command node
         /// </summary>
@@ -136,15 +133,64 @@ namespace Compiler.CodeGeneration
         private void GenerateCodeForIfCommand(IfCommandNode ifCommand)
         {
             Debugger.Write("Generating code for If Command");
-            GenerateCodeFor(ifCommand.Expression);
+
+            // Generate code for the if condition
+            GenerateCodeFor(ifCommand.IfCondition);
+
+            // Jump to else branch if the condition is false
             Address ifJumpAddress = code.NextAddress;
             code.AddInstruction(OpCode.JUMPIF, Register.CB, FalseValue, 0);
-            GenerateCodeFor(ifCommand.ThenCommand);
-            Address thenJumpAddress = code.NextAddress;
+
+            // Generate code for the then branch
+            GenerateCodeFor(ifCommand.IfCommand);
+
+            // Jump to the end of the if-else construct
+            Address elseJumpAddress = code.NextAddress;
             code.AddInstruction(OpCode.JUMP, Register.CB, 0, 0);
+
+            // Patch the jump instruction to the else branch if the condition is false
             code.PatchInstructionToJumpHere(ifJumpAddress);
+
+            // Generate code for the else branch
             GenerateCodeFor(ifCommand.ElseCommand);
-            code.PatchInstructionToJumpHere(thenJumpAddress);
+
+            // Patch the jump instruction to the end of the if-else construct
+            code.PatchInstructionToJumpHere(elseJumpAddress);
+        }
+
+        /// <summary>
+        /// Generates code for an if unless command 
+        /// </summary>
+        /// <param name="ifUnlessCommand">The node to generate code for</param>
+        private void GenerateCodeForIfUnlessCommand(IfUnlessCommandNode ifUnlessCommand)
+        {
+            Debugger.Write("Generating code for If Unless Command");
+
+            GenerateCodeFor(ifUnlessCommand.IfCondition);
+            Address ifJumpAddress = code.NextAddress;
+            code.AddInstruction(OpCode.JUMPIF, Register.CB, FalseValue, 0);
+            GenerateCodeFor(ifUnlessCommand.IfCommand);
+
+            Address elseJumpAddress = code.NextAddress;
+            code.AddInstruction(OpCode.JUMP, Register.CB, 0, 0);
+
+            code.PatchInstructionToJumpHere(ifJumpAddress);
+
+            GenerateCodeFor(ifUnlessCommand.UnlessCondition);
+            Address unlessJumpAddress = code.NextAddress;
+            code.AddInstruction(OpCode.JUMPIF, Register.CB, FalseValue, 0);
+
+            GenerateCodeFor(ifUnlessCommand.IfCommand);
+
+            Address endUnlessJumpAddress = code.NextAddress;
+            code.AddInstruction(OpCode.JUMP, Register.CB, 0, 0);
+
+            code.PatchInstructionToJumpHere(elseJumpAddress);
+            code.PatchInstructionToJumpHere(unlessJumpAddress);
+
+            GenerateCodeFor(ifUnlessCommand.ElseCommand);
+
+            code.PatchInstructionToJumpHere(endUnlessJumpAddress);
         }
 
         /// <summary>
@@ -155,7 +201,7 @@ namespace Compiler.CodeGeneration
         {
             Debugger.Write("Generating code for Let Command");
             scopes.AddScope();
-            GenerateCodeFor(letCommand.Declaration);
+            GenerateCodeFor(letCommand.Declarations);
             GenerateCodeFor(letCommand.Command);
             code.AddInstruction(OpCode.POP, 0, 0, scopes.GetLocalScopeSize());
             scopes.RemoveScope();
@@ -189,7 +235,30 @@ namespace Compiler.CodeGeneration
             return;
         }
 
+        /// <summary>
+        /// Generates code for a with command node
+        /// </summary>
+        /// <param name="withCommand">The node to generate code for</param>
+        private void GenerateCodeForWithCommand(WithCommandNode withCommand)
+        {
+            Debugger.Write("Generating code for With Command");
 
+            // Generate code for the declaration
+            GenerateCodeFor(withCommand.Declaration);
+
+            // Save the current value of the local frame base (LB) register
+            code.AddInstruction(OpCode.PUSH, Register.LB, 0, 0);
+
+            // Update the local frame base (LB) register to point to the new scope
+            code.AddInstruction(OpCode.LOAD, Register.ST, 0, 0); // Load the address of the new scope
+            code.AddInstruction(OpCode.STORE, Register.LB, 0, 0); // Set LB to the address of the new scope
+
+            // Generate code for the command inside the with command
+            GenerateCodeFor(withCommand.Command);
+
+            // Restore the original value of the local frame base (LB) register
+            code.AddInstruction(OpCode.POP, Register.LB, 0, 0);
+        }
 
         /// <summary>
         /// Generates code for a const declaration node
@@ -237,8 +306,6 @@ namespace Compiler.CodeGeneration
             scopes.AddToLocalScope(variableSize);
         }
 
-
-
         /// <summary>
         /// Generates code for a binary expression node
         /// </summary>
@@ -265,13 +332,13 @@ namespace Compiler.CodeGeneration
         /// Generates code for an ID expression node
         /// </summary>
         /// <param name="idExpression">The node to generate code for</param>
-        private void GenerateCodeForIdExpression(IdExpressionNode idExpression)
+        private void GenerateCodeForIdentifierExpression(IdentifierExpressionNode idExpression)
         {
-            Debugger.Write("Generating code for ID Expression");
+            Debugger.Write("Generating code for Identifier Expression");
             if (idExpression.Identifier.Declaration is IEntityDeclarationNode entityDeclaration)
                 code.AddInstruction(entityDeclaration.RuntimeEntity.GenerateInstructionToLoad());
             else
-                Debugger.Write("The identifier is not a constant or variable and you should have picked this problem up during type checking");
+                Reporter.ReportError("The identifier is not a constant or variable and you should have picked this problem up during type checking");
         }
 
         /// <summary>
@@ -295,8 +362,6 @@ namespace Compiler.CodeGeneration
             GenerateCodeFor(unaryExpression.Op);
         }
 
-
-
         /// <summary>
         /// Generates code for a blank parameter node
         /// </summary>
@@ -309,11 +374,11 @@ namespace Compiler.CodeGeneration
         /// <summary>
         /// Generates code for an expression parameter node
         /// </summary>
-        /// <param name="expressionParameter">The node to generate code for</param>
-        private void GenerateCodeForExpressionParameter(ExpressionParameterNode expressionParameter)
+        /// <param name="valueParameter">The node to generate code for</param>
+        private void GenerateCodeForValueParameter(ValueParameterNode valueParameter)
         {
-            Debugger.Write("Generating code for Expression Parameter");
-            GenerateCodeFor(expressionParameter.Expression);
+            Debugger.Write("Generating code for Value Parameter");
+            GenerateCodeFor(valueParameter.Expression);
         }
 
         /// <summary>
@@ -326,7 +391,7 @@ namespace Compiler.CodeGeneration
             if (varParameter.Identifier.Declaration is IVariableDeclarationNode varDeclaration)
                 code.AddInstruction(varDeclaration.RuntimeEntity.GenerateInstructionToLoadAddress());
             else
-                Debugger.Write("Error: The identifier is not a variable and you should have picked this problem up during type checking");
+                Reporter.ReportError("The identifier is not a variable and you should have picked this problem up during type checking");
         }
 
 
@@ -362,7 +427,7 @@ namespace Compiler.CodeGeneration
             if (identifier.Declaration is IPrimitiveDeclarationNode primitiveDeclaration)
                 code.AddInstruction(OpCode.CALL, Register.PB, (byte)Register.SB, (short)primitiveDeclaration.Primitive);
             else
-                Debugger.Write("Error: The identifier declaration isn't one of the built in functions and you should have picked this problem up during type checking");
+                Reporter.ReportError("The identifier declaration isn't one of the built in functions and you should have picked this problem up during type checking");
         }
 
         /// <summary>
@@ -385,7 +450,7 @@ namespace Compiler.CodeGeneration
             if (operation.Declaration is IPrimitiveDeclarationNode primativeDeclaration)
                 code.AddInstruction(OpCode.CALL, Register.PB, 0, (short)primativeDeclaration.Primitive);
             else
-                Debugger.Write("Error: The operator declaration isn't one of the built in operations and you should have picked this problem up during type checking");
+                Reporter.ReportError("The operator declaration isn't one of the built in operations and you should have picked this problem up during type checking");
         }
     }
 }

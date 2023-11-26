@@ -51,17 +51,17 @@ namespace Compiler.SemanticAnalysis
         {
             if (node is null)
                 // Shouldn't have null nodes - there is a problem with your parsing
-                Debugger.Write("Tried to perform identification on a null tree node");
+                Reporter.ReportError("Tried to perform identification on a null tree node");
             else if (node is ErrorNode)
                 // Shouldn't have error nodes - there is a problem with your parsing
-                Debugger.Write("Tried to perform identification on an error tree node");
+                Reporter.ReportError("Tried to perform identification on an error tree node");
             else
             {
                 string functionName = "PerformIdentificationOn" + node.GetType().Name.Remove(node.GetType().Name.Length - 4);
                 MethodInfo function = this.GetType().GetMethod(functionName, NonPublic | Public | Instance | Static);
                 if (function == null)
                     // There is not a correctly named function below
-                    Debugger.Write($"Couldn't find the function {functionName} when doing identification");
+                    Reporter.ReportError($"Couldn't find the function {functionName} when doing identification");
                 else
                     function.Invoke(this, new[] { node });
             }

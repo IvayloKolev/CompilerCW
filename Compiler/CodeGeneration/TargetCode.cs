@@ -68,6 +68,7 @@ namespace Compiler.CodeGeneration
             if (IsFull)
             {
                 // Error - Out of space to store program - added too many instructions
+                Reporter.ReportError(" Out of space, too many instructions");
             }
             else
                 Instructions.Add(instruction);
@@ -80,14 +81,14 @@ namespace Compiler.CodeGeneration
         public void PatchInstructionToJumpHere(Address address)
         {
             if (address < 0 || address >= Instructions.Count)
-                Debugger.Write("Tried to backpatch an instruction which is at an address that is not in the generated program");
+                Reporter.ReportError("Tried to backpatch an instruction which is at an address that is not in the generated program");
             else
             {
                 Instruction original = Instructions[address];
                 if (original.OpCode == OpCode.JUMP || original.OpCode == OpCode.JUMPIF)
                     Instructions[address] = new Instruction(original.OpCode, original.Register, original.Length, NextAddress);
                 else
-                    Debugger.Write("Tried to backpatch an instruction which is not a JUMP or JUMPIF");
+                    Reporter.ReportError("Tried to backpatch an instruction which is not a JUMP or JUMPIF");
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using static System.Console;
 
 namespace Compiler.IO
 {
@@ -8,8 +8,23 @@ namespace Compiler.IO
     public class ErrorReporter
     {
         /// <summary>
-        /// Whether or not any errors have been encountered
+        /// The number of errors encountered so far
         /// </summary>
-        public bool HasErrors { get; }
+        public int ErrorCount { get; private set; } = 0;
+
+        /// <summary>
+        /// Whether or not any errors have been encounter
+        /// </summary>
+        public bool HasErrors { get { return ErrorCount > 0; } }
+
+        /// <summary>
+        /// Reports an error
+        /// </summary>
+        /// <param name="message">The message to display</param>
+        public void ReportError(string message)
+        {
+            ErrorCount += 1;
+            WriteLine($"ERROR: {message}");
+        }
     }
 }
