@@ -1,8 +1,8 @@
 ﻿using Compiler.IO;
 using Compiler.Nodes;
 using Compiler.Tokenization;
-using static Compiler.Tokenization.TokenType;
 using System.Collections.Generic;
+using static Compiler.Tokenization.TokenType;
 
 namespace Compiler.SyntacticAnalysis
 {
@@ -44,11 +44,11 @@ namespace Compiler.SyntacticAnalysis
         /// Peeks the next token without consuming it
         /// </summary>
         /// <returns> The next token </returns>
-        private Token PeekNext()
+        private Token PeekNext(int n)
         {
             if (currentIndex < tokens.Count - 1)
             {
-                return tokens[currentIndex + 1];
+                return tokens[currentIndex + n];
             } else
             {
                 return null;
@@ -107,23 +107,33 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a IfCommand
+        /// Parses a Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the composite command</returns>
         private ICommandNode ParseCommand()
         {
-            Debugger.Write("Parsing IfCommand");
+            Debugger.Write("Parsing Command");
+
             List<ICommandNode> commands = new List<ICommandNode>();
-            commands.Add(ParseSingleCommand());
-            while (CurrentToken.Type == Semicolon)
+
+            while (true)
             {
-                Accept(Semicolon);
-                commands.Add(ParseSingleCommand());
+                ICommandNode singleCommand = ParseSingleCommand();
+                commands.Add(singleCommand);
+
+                if (CurrentToken.Type == Semicolon)
+                {
+                    Accept(Semicolon);
+                } 
+                else
+                {
+                    break;
+                }
             }
-            if (commands.Count == 1)
-                return commands[0];
-            else
-                return new SequentialCommandNode(commands);
+
+            return commands.Count == 1
+                ? commands[0]
+                : new SequentialCommandNode(commands);
         }
 
         /// <summary>
@@ -211,7 +221,7 @@ namespace Compiler.SyntacticAnalysis
             IExpressionNode expression = ParseParenthesesExpression();
 
             Accept(Do);
-            ICommandNode command = ParseCommand();
+            ICommandNode command = ParseSingleCommand();
             return new WhileCommandNode(expression, command, startPosition);
         }
 
@@ -232,7 +242,7 @@ namespace Compiler.SyntacticAnalysis
             {
                 Accept(Unless);
                 IExpressionNode unlessCondition = ParseParenthesesExpression();
-                ICommandNode ifCommand = ParseCommand();
+                ICommandNode ifCommand = ParseSingleCommand();
 
                 Accept(Else);
                 ICommandNode elseCommand = ParseSingleCommand();
@@ -273,7 +283,7 @@ namespace Compiler.SyntacticAnalysis
             Position startPosition = CurrentToken.Position;
             Accept(With);
 
-            IDeclarationNode declaration = ParseDeclaration();
+            IDeclarationNode declaration = ParseSingleDeclaration();
             Accept(Do);
 
             ICommandNode command = ParseCommand();
@@ -304,12 +314,19 @@ namespace Compiler.SyntacticAnalysis
             Debugger.Write("Parsing Declaration");
 
             List<IDeclarationNode> declarations = new List<IDeclarationNode>();
-            declarations.Add(ParseSingleDeclaration());
 
-            while (CurrentToken.Type == Semicolon)
+            while (true)
             {
-                Accept(Semicolon);
-                declarations.Add(ParseSingleDeclaration());
+                IDeclarationNode singleDeclaration = ParseSingleDeclaration();
+                declarations.Add(singleDeclaration);
+
+                if (CurrentToken.Type == Semicolon)
+                {
+                    Accept(Semicolon);
+                } else
+                {
+                    break;
+                }
             }
 
             return declarations.Count == 1

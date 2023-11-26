@@ -1,31 +1,24 @@
 let
-XX ~ 1_0;
-YY: Integer;
-ZZ: Integer;
-Condition: Boolean
+	XX ~ 1_0;
+	YY: Integer;
+	ZZ: Integer;
+	Condition: Boolean
 in
 {
-YY := XX * 2;
-Condition := True;
+	YY := XX * 2;
+	Condition := True;
 
-if (Condition) 
-unless (YY < 30) 
-Putint(in YY)
-else
-Puteol()
-;
+	if (Condition) unless (YY < 30) 
+		Putint(in YY)
+	else
+		Puteol()
 
-ZZ := YY * 10;
 
-with
-AA ~ 20
-do
-ZZ := ZZ - AA
-done
-};
+	ZZ := YY * 10;
 
-with
-AA ~ 20
-do
-Putint(in AA)
-done
+	with
+		AA ~ 20
+	do
+		ZZ := ZZ - AA
+	done
+}

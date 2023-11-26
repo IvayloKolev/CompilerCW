@@ -55,8 +55,8 @@ namespace Compiler.SemanticAnalysis
         public static SimpleTypeDeclarationNode AnyType { get; } = new SimpleTypeDeclarationNode("Any");
         public static SimpleTypeDeclarationNode VoidType { get; } = new SimpleTypeDeclarationNode("Void");
 
-        public static BuiltInConstDeclarationNode True { get; } = new BuiltInConstDeclarationNode("true", BooleanType, CodeGeneration.TriangleAbstractMachine.TrueValue);
-        public static BuiltInConstDeclarationNode False { get; } = new BuiltInConstDeclarationNode("false", BooleanType, CodeGeneration.TriangleAbstractMachine.FalseValue);
+        public static BuiltInConstDeclarationNode True { get; } = new BuiltInConstDeclarationNode("True", BooleanType, CodeGeneration.TriangleAbstractMachine.TrueValue);
+        public static BuiltInConstDeclarationNode False { get; } = new BuiltInConstDeclarationNode("False", BooleanType, CodeGeneration.TriangleAbstractMachine.FalseValue);
 
         public static BinaryOperationDeclarationNode GreaterThan { get; } = new BinaryOperationDeclarationNode(">", GT, IntegerType, IntegerType, BooleanType);
         public static BinaryOperationDeclarationNode LessThan { get; } = new BinaryOperationDeclarationNode("<", LT, IntegerType, IntegerType, BooleanType);

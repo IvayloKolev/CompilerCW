@@ -342,7 +342,7 @@ namespace Compiler.SemanticAnalysis
             if (!(idExpression.Identifier.Declaration is IEntityDeclarationNode declaration))
             {
                 // Error: identifier is not a variable or constant
-                Debugger.Write($"Error: Identifier '{idExpression.Identifier}' at position {idExpression.Position} is not a variable or constant.");
+                Debugger.Write($"Error: Identifier '{idExpression.Identifier.IdentifierToken}' at position {idExpression.Position} is not a variable or constant.");
             }
             else
             {
