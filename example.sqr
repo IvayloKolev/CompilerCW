@@ -1,7 +1,6 @@
 let
 	XX ~ 1_0;
 	YY: Integer;
-	ZZ: Integer;
 	Condition: Boolean
 in
 {
@@ -9,18 +8,11 @@ in
 	Condition := True;
 
 	if (Condition) unless (YY < 30) 
+		YY := YY + 69;
+		YY := YY * 69;
 		Putint(in YY);
 		Puteol()
 	else
 		Puteol()
 	;
-
-	ZZ := YY * 10;
-
-	with
-		AA ~ 20
-	do
-		ZZ := ZZ - AA;
-		Putint(in ZZ)
-	done
 }

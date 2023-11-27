@@ -163,19 +163,19 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses an assignment or call IfCommand
+        /// Parses an assignment or call Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the assignment or call IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the assignment or call Command</returns>
         private ICommandNode ParseAssignmentOrCallCommand()
         {
-            Debugger.Write("Parsing Assignment IfCommand or Call IfCommand");
+            Debugger.Write("Parsing Assignment Command or Call Command");
             Position startPosition = CurrentToken.Position;
 
             IdentifierNode identifier = ParseIdentifier();
             
             if (CurrentToken.Type == Becomes)
             {
-                Debugger.Write("Parsing Assignment IfCommand");
+                Debugger.Write("Parsing Assignment Command");
 
                 Accept(Becomes);
 
@@ -183,7 +183,7 @@ namespace Compiler.SyntacticAnalysis
                 return new AssignCommandNode(identifier, expression);
             } else if (CurrentToken.Type == OpeningParenthesis)
             {
-                Debugger.Write("Parsing Call IfCommand");
+                Debugger.Write("Parsing Call Command");
 
                 Accept(OpeningParenthesis);
                 IParameterNode parameter = ParseParameter();
@@ -198,23 +198,23 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a skip IfCommand
+        /// Parses a skip Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the skip IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the skip Command</returns>
         private ICommandNode ParseSkipCommand()
         {
-            Debugger.Write("Parsing Skip IfCommand");
+            Debugger.Write("Parsing Skip Command");
             Position startPosition = CurrentToken.Position;
             return new BlankCommandNode(startPosition);
         }
 
         /// <summary>
-        /// Parses a while IfCommand
+        /// Parses a while Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the while IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the while Command</returns>
         private ICommandNode ParseWhileCommand()
         {
-            Debugger.Write("Parsing While IfCommand");
+            Debugger.Write("Parsing While Command");
             Position startPosition = CurrentToken.Position;
 
             Accept(While);
@@ -231,7 +231,7 @@ namespace Compiler.SyntacticAnalysis
         /// <returns></returns>
         private ICommandNode ParseIfCommand()
         {
-            // Check if it's an "if" or "if unless" unlessCommand
+            // Check if it's an "if" or "if unless" Command
             Position startPosition = CurrentToken.Position;
             Accept(If);
 
@@ -258,12 +258,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a let in IfCommand
+        /// Parses a let in Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the let in IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the let in Command</returns>
         private ICommandNode ParseLetCommand()
         {
-            Debugger.Write("Parsing Let IfCommand");
+            Debugger.Write("Parsing Let Command");
             Position startPosition = CurrentToken.Position;
             Accept(Let);
             IDeclarationNode declaration = ParseDeclaration();
@@ -273,12 +273,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a with IfCommand
+        /// Parses a with Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the with IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the with Command</returns>
         private ICommandNode ParseWithCommand()
         {
-            Debugger.Write("Parsing With IfCommand");
+            Debugger.Write("Parsing With Command");
 
             Position startPosition = CurrentToken.Position;
             Accept(With);
@@ -293,12 +293,12 @@ namespace Compiler.SyntacticAnalysis
         }
 
         /// <summary>
-        /// Parses a begin IfCommand
+        /// Parses a begin Command
         /// </summary>
-        /// <returns>An abstract syntax tree representing the begin IfCommand</returns>
+        /// <returns>An abstract syntax tree representing the begin Command</returns>
         private ICommandNode ParseBeginCommand()
         {
-            Debugger.Write("Parsing Begin IfCommand");
+            Debugger.Write("Parsing Begin Command");
             Accept(OpeningBrace);
             ICommandNode command = ParseCommand();
             Accept(ClosingBrace);
