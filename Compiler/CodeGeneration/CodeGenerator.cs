@@ -134,27 +134,17 @@ namespace Compiler.CodeGeneration
         {
             Debugger.Write("Generating code for If Command");
 
-            // Generate code for the if condition
             GenerateCodeFor(ifCommand.IfCondition);
-
-            // Jump to else branch if the condition is false
             Address ifJumpAddress = code.NextAddress;
             code.AddInstruction(OpCode.JUMPIF, Register.CB, FalseValue, 0);
-
-            // Generate code for the then branch
             GenerateCodeFor(ifCommand.IfCommand);
 
-            // Jump to the end of the if-else construct
             Address elseJumpAddress = code.NextAddress;
             code.AddInstruction(OpCode.JUMP, Register.CB, 0, 0);
-
-            // Patch the jump instruction to the else branch if the condition is false
             code.PatchInstructionToJumpHere(ifJumpAddress);
 
-            // Generate code for the else branch
             GenerateCodeFor(ifCommand.ElseCommand);
 
-            // Patch the jump instruction to the end of the if-else construct
             code.PatchInstructionToJumpHere(elseJumpAddress);
         }
 
@@ -243,20 +233,15 @@ namespace Compiler.CodeGeneration
         {
             Debugger.Write("Generating code for With Command");
 
-            // Generate code for the declaration
             GenerateCodeFor(withCommand.Declaration);
 
-            // Save the current value of the local frame base (LB) register
             code.AddInstruction(OpCode.PUSH, Register.LB, 0, 0);
 
-            // Update the local frame base (LB) register to point to the new scope
-            code.AddInstruction(OpCode.LOAD, Register.ST, 0, 0); // Load the address of the new scope
-            code.AddInstruction(OpCode.STORE, Register.LB, 0, 0); // Set LB to the address of the new scope
+            code.AddInstruction(OpCode.LOAD, Register.ST, 0, 0);
+            code.AddInstruction(OpCode.STORE, Register.LB, 0, 0);
 
-            // Generate code for the command inside the with command
             GenerateCodeFor(withCommand.Command);
 
-            // Restore the original value of the local frame base (LB) register
             code.AddInstruction(OpCode.POP, Register.LB, 0, 0);
         }
 

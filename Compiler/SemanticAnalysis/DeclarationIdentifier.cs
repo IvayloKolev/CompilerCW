@@ -121,7 +121,6 @@ namespace Compiler.SemanticAnalysis
             PerformIdentification(ifUnlessCommand.UnlessCondition);
             PerformIdentification(ifUnlessCommand.IfCommand);
             PerformIdentification(ifUnlessCommand.ElseCommand);
-
         }
 
         private void PerformIdentificationOnWithCommand (WithCommandNode WithCommand)

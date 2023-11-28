@@ -114,6 +114,8 @@ namespace Compiler
             Writer.WriteToFiles(targetCode);
             if (Reporter.HasErrors) return;
             WriteLine("Done");
+
+            WriteLine(TreePrinter.ToString(tree));
         }
 
         /// <summary>
@@ -124,7 +126,7 @@ namespace Compiler
             if (Reporter.HasErrors)
                 Out.WriteLine($"Compilation failed with {Reporter.ErrorCount} errors");
             else
-                Out.WriteLine($"Compilation succeeded");
+                Out.WriteLine($"Compilation successful");
         }
 
         /// <summary>

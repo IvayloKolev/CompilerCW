@@ -125,11 +125,11 @@ namespace Compiler.Tokenization
                     if (TokenTypes.IsKeyword(TokenSpelling))
                         return TokenTypes.GetTokenForKeyword(TokenSpelling);
                     else
-                        Debugger.Write($"Error scanning identifier {Reader.Current}");
+                        Reporter.ReportError($"Error scanning identifier {Reader.Current}");
                         return TokenType.Error;
                 } else
                 {
-                    Debugger.Write($"Error scanning identifier {Reader.Current}");
+                    Reporter.ReportError($"Error scanning identifier {Reader.Current}");
                     return TokenType.Error;
                 }
             }
@@ -149,7 +149,6 @@ namespace Compiler.Tokenization
 
                 return TokenType.IntLiteral;
             }
-
             else if (IsOperator(Reader.Current))
             {
                 // Read an operator
@@ -207,21 +206,25 @@ namespace Compiler.Tokenization
                 TakeIt();
                 return TokenType.ClosingBrace;
             }
-            else if (Reader.Current == '\'')
+            else if (Reader.Current == '\'' || Reader.Current == '\"')
             {
-                // Read a '
-                TakeIt();
-                // Take whatever the character is
-                TakeIt();
-                // Try getting the closing '
-                if (Reader.Current == '\'')
+                char quoteChar = Reader.Current;
+                TakeIt(); // Consume the opening quote (single or double)
+
+                while (Reader.Current != quoteChar && Reader.Current != default(char))
                 {
+                    // Take whatever the character is
                     TakeIt();
+                }
+
+                if (Reader.Current == quoteChar)
+                {
+                    TakeIt(); // Consume the closing quote
                     return TokenType.CharLiteral;
                 }
                 else
                 {
-                    Reporter.ReportError($"Lexical error: Character literal {Reader.Current} not properly closed");
+                    Reporter.ReportError($"Lexical error: Character literal not properly closed");
                     return TokenType.Error;
                 }
             }
@@ -276,6 +279,7 @@ namespace Compiler.Tokenization
                 case '>':
                 case '=':
                 case '\\':
+                case '!':
                     return true;
                 default:
                     return false;

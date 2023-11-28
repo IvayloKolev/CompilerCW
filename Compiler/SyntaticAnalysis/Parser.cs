@@ -44,11 +44,11 @@ namespace Compiler.SyntacticAnalysis
         /// Peeks the next token without consuming it
         /// </summary>
         /// <returns> The next token </returns>
-        private Token PeekNext(int n)
+        private Token PeekNext()
         {
             if (currentIndex < tokens.Count - 1)
             {
-                return tokens[currentIndex + n];
+                return tokens[currentIndex + 1];
             } else
             {
                 return null;
@@ -77,7 +77,7 @@ namespace Compiler.SyntacticAnalysis
             }
             else
             {
-                Debugger.Write($"Type mismatch - Current token {CurrentToken} isn't of type {expectedType}.  {CurrentToken.Position}");
+                Reporter.ReportError($"Type mismatch - Current token {CurrentToken} isn't of type {expectedType}.  {CurrentToken.Position}");
                 MoveNext();
             }
         }
@@ -101,7 +101,7 @@ namespace Compiler.SyntacticAnalysis
         private ProgramNode ParseProgram()
         {
             Debugger.Write("Parsing program");
-            ICommandNode command = ParseCommand();
+            ICommandNode command = ParseSingleCommand();
             ProgramNode program = new ProgramNode(command);
             return program;
         }
@@ -116,19 +116,32 @@ namespace Compiler.SyntacticAnalysis
 
             List<ICommandNode> commands = new List<ICommandNode>();
 
+            var commandTokenTypes = new List<TokenType>
+            {
+                Identifier,
+                OpeningBrace,
+                Let,
+                If,
+                While,
+                With
+            };
+
             while (true)
             {
-                ICommandNode singleCommand = ParseSingleCommand();
-                commands.Add(singleCommand);
 
-                if (CurrentToken.Type == Semicolon)
+                if (CurrentToken.Type != EndOfText)
                 {
-                    Accept(Semicolon);
-                } 
-                else
-                {
-                    break;
+                    Token nextToken = PeekNext();
+                    if (commandTokenTypes.Contains(CurrentToken.Type) || commandTokenTypes.Contains(nextToken.Type))
+                    {
+                        ICommandNode singleCommand = ParseSingleCommand();
+                        commands.Add(singleCommand);
+                        Accept(Semicolon);
+                    }
+                    else
+                    { break; }
                 }
+                else { break; }
             }
 
             return commands.Count == 1
@@ -317,16 +330,15 @@ namespace Compiler.SyntacticAnalysis
 
             while (true)
             {
-                IDeclarationNode singleDeclaration = ParseSingleDeclaration();
-                declarations.Add(singleDeclaration);
+                Token nextToken = PeekNext();
+                if (CurrentToken.Type == Identifier || nextToken.Type == Identifier)
+                {
+                    IDeclarationNode singleDeclaration = ParseSingleDeclaration();
+                    declarations.Add(singleDeclaration);
 
-                if (CurrentToken.Type == Semicolon)
-                {
                     Accept(Semicolon);
-                } else
-                {
-                    break;
                 }
+                else { break; }
             }
 
             return declarations.Count == 1

@@ -1,18 +1,31 @@
-let
-	XX ~ 1_0;
-	YY: Integer;
-	Condition: Boolean
-in
 {
-	YY := XX * 2;
-	Condition := True;
+	let
+		Int1 ~ 10_00;
+		Int2 : Integer;
+	in
+	{
+		if (Int1 > 999)
+		unless (Int1 < 99)
+			Putint(in Int1 * 10)
+		else
+			Putint(in Int1)
+		;
+		
+		Int2 := Int1 - 990;
+		
+		while (Int2 > 10)
+		do {
+			Putint(in Int2);
+			Int2 := Int2 - 1;
+		};
+	};
 
-	if (Condition) unless (YY < 30) 
-		YY := YY + 69;
-		YY := YY * 69;
-		Putint(in YY);
-		Puteol()
-	else
-		Puteol()
+	with 
+		WithVar ~ 10
+	do
+	{
+		Putint(in WithVar);
+	};
+	done
 	;
 }
